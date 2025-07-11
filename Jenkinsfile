@@ -18,10 +18,10 @@ pipeline{
                 script {
                     echo "Parsing and injecting .env variables..."
 
-                    // Using your specified credential ID: 'myfirstpipelineenv'
-                    withCredentials([string(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_CONTENT')]) {
+                    // Using my specified credential ID: 'myfirstpipelineenv'
+                    withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
 
-                        // --- Do not change anything below this line unless you know what you're doing ---
+                        //--- don't touch excel---
                         def envVars = [:]
                         DOTENV_CONTENT.split('\n').each { line ->
                             line = line.trim()
