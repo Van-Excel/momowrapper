@@ -62,7 +62,7 @@ cd momo-wrapper
 
 2️⃣ Create .env
 
-Create a .env file with your own secure values:
+Create an .env file with your own secure values:
 
 DATABASE_URL=postgresql+asyncpg://<username>:<password>@<host>:<port>/<database>
 SECRET_KEY=your_very_secret_key
