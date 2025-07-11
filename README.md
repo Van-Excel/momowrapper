@@ -148,6 +148,7 @@ Basic error handling and validation
 
 🔜 In Progress / Next
 Deposit Request Logic Implementation
+Setting up Tests
 
 
 📝 License
