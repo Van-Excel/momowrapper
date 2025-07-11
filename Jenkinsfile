@@ -13,12 +13,38 @@ pipeline{
       
     }
 
-    stage('inject .env file'){
-        steps{
-          echo "injecting .env variables"
-          configFileProvider([configFile(fileId:'myfirstpipelineenv', targetLocation:'.env')])
+    stage('Setup Environment Variables') {
+            steps {
+                script {
+                    echo "Parsing and injecting .env variables..."
+
+                    // Using your specified credential ID: 'myfirstpipelineenv'
+                    withCredentials([string(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_CONTENT')]) {
+
+                        // --- Do not change anything below this line unless you know what you're doing ---
+                        def envVars = [:]
+                        DOTENV_CONTENT.split('\n').each { line ->
+                            line = line.trim()
+                            if (line && !line.startsWith('#')) {
+                                def parts = line.split('=', 2)
+                                if (parts.size() == 2) {
+                                    envVars[parts[0].trim()] = parts[1].trim()
+                                } else {
+                                    echo "Warning: Skipping malformed .env line: '${line}'"
+                                }
+                            }
+                        }
+
+                        envVars.each { key, value ->
+                            env."${key}" = value
+                            echo "Injected: ${key}=*** (value hidden for security)"
+                        }
+                        // --- End of no-change zone ---
+                    }
+                }
+            }
         }
-      }
+        
     stage ('build'){
       steps{
         echo "This is the build phase"
