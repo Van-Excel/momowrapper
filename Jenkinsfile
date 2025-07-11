@@ -14,36 +14,36 @@ pipeline{
     }
 
     stage('Setup Environment Variables') {
-            steps {
-                script {
-                    echo "Parsing and injecting .env variables..."
+  steps {
+    script {
+      echo "Parsing and injecting .env variables..."
 
-                    // Using my specified credential ID: 'myfirstpipelineenv'
-                    withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
+      // Use your Jenkins file credential
+      withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
 
-                        //--- don't touch excel---
-                        def envVars = [:]
-                        DOTENV_CONTENT.split('\n').each { line ->
-                            line = line.trim()
-                            if (line && !line.startsWith('#')) {
-                                def parts = line.split('=', 2)
-                                if (parts.size() == 2) {
-                                    envVars[parts[0].trim()] = parts[1].trim()
-                                } else {
-                                    echo "Warning: Skipping malformed .env line: '${line}'"
-                                }
-                            }
-                        }
+        def dotenvContent = readFile(file: DOTENV_FILE)
+        def envVars = [:]
 
-                        envVars.each { key, value ->
-                            env."${key}" = value
-                            echo "Injected: ${key}=*** (value hidden for security)"
-                        }
-                        // --- End of no-change zone ---
-                    }
-                }
+        dotenvContent.split('\n').each { line ->
+          line = line.trim()
+          if (line && !line.startsWith('#')) {
+            def parts = line.split('=', 2)
+            if (parts.size() == 2) {
+              envVars[parts[0].trim()] = parts[1].trim()
+            } else {
+              echo "Warning: Skipping malformed .env line: '${line}'"
             }
+          }
         }
+
+        envVars.each { key, value ->
+          env."${key}" = value
+          echo "Injected: ${key}=*** (value hidden for security)"
+        }
+      }
+    }
+  }
+}
         
     stage ('build'){
       steps{
