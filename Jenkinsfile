@@ -10,13 +10,15 @@ pipeline{
         echo "cloning project"
         checkout scm
       }
-      stage('inject .env file'){
+      
+    }
+
+    stage('inject .env file'){
         steps{
           echo "injecting .env variables"
           configFileProvider([configFile(fileId:'myfirstpipelineenv', targetLocation:'.env')])
         }
       }
-    }
     stage ('build'){
       steps{
         echo "This is the build phase"
