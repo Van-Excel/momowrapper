@@ -21,6 +21,7 @@ pipeline {
 
           withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE_PATH')]) {
             sh """
+              chmod 666 /var/run/docker.sock
               docker-compose --env-file "$DOTENV_FILE_PATH" -f docker-compose.yml up -d --build
               sleep 10
             """
