@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         COMPOSE_PROJECT_NAME = "wrapper_pipeline"
+        
         APP_PORT = "8000"
     }
 
