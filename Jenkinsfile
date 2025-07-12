@@ -20,6 +20,9 @@ pipeline{
 
       // Use your Jenkins file credential
       withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
+        
+        echo "Copying .env file into workspace..."
+        sh 'cp $DOTENV_FILE .env'
 
         def dotenvContent = readFile(file: DOTENV_FILE)
         def envVars = [:]
