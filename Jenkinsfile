@@ -1,9 +1,6 @@
 pipeline {
   agent any
-  options {
-        // This option ensures that the workspace is deleted before each build starts.
-        cleanWs()
-    }
+  
 
   environment {
     COMPOSE_PROJECT_NAME = "wrapper_pipeline"
@@ -11,6 +8,10 @@ pipeline {
   }
 
   stages {
+     stage('Clean Workspace') { // <--- ADD THIS NEW STAGE
+            steps {
+                cleanWs() // <--- PUT cleanWs() HERE
+            }
     stage('clone repository') {
       steps {
         echo "cloning project"
