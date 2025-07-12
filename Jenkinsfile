@@ -15,6 +15,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
+                echo "Cloning repository..."
                 checkout scm
             }
         }
@@ -24,10 +25,11 @@ pipeline {
                 script {
                     echo "Provisioning .env and building containers..."
                     withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE_PATH')]) {
-                        sh """
+                        sh label: 'Build Docker', script: '''#!/bin/bash
+                            echo "Using env file: $DOTENV_FILE_PATH"
                             docker-compose --env-file "$DOTENV_FILE_PATH" -f docker-compose.yml up -d --build
                             sleep 10
-                        """
+                        '''
                     }
                 }
             }
@@ -35,6 +37,7 @@ pipeline {
 
         stage('Test') {
             steps {
+                echo "Running tests..."
                 sh 'docker-compose exec -T web pytest tests/'
             }
         }
@@ -42,12 +45,14 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying..."
+                // Add your deployment logic here
             }
         }
     }
 
     post {
         always {
+            echo "Cleaning up Docker containers and volumes..."
             sh 'docker-compose -f docker-compose.yml down -v'
         }
     }
