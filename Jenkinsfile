@@ -23,12 +23,11 @@ pipeline {
         stage('Build & Start Containers') {
             steps {
                 script {
-                    echo "Provisioning .env and building containers..."
                     withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE_PATH')]) {
-                        sh label: 'Build Docker', script: '''#!/bin/bash
-                            echo "Using env file: $DOTENV_FILE_PATH"
-                            docker-compose --env-file "$DOTENV_FILE_PATH" -f docker-compose.yml up -d --build
-                            sleep 10
+                        sh '''
+                          echo "Using env file: $DOTENV_FILE_PATH"
+                          docker-compose --env-file "$DOTENV_FILE_PATH" -f docker-compose.yml up -d --build
+                          docker-compose ps
                         '''
                     }
                 }
@@ -37,8 +36,24 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo "Running tests..."
-                sh 'docker-compose exec -T web pytest tests/'
+                script {
+                    sh '''
+                      echo "Waiting for web service..."
+                      retries=5
+                      while ! docker-compose exec -T web true; do
+                        if [ $retries -eq 0 ]; then
+                          echo "Web service did not come up in time"
+                          exit 1
+                        fi
+                        echo "Still waiting..."
+                        retries=$((retries - 1))
+                        sleep 5
+                      done
+
+                      echo "Running tests..."
+                      docker-compose exec -T web pytest tests/
+                    '''
+                }
             }
         }
 
