@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'CLEAN_WORKSPACE', defaultValue: false, description: 'Clean workspace before starting?')
+    }
+
     environment {
         COMPOSE_PROJECT_NAME = "wrapper_pipeline"
         APP_PORT = "8000"
@@ -8,6 +12,9 @@ pipeline {
 
     stages {
         stage('Clean Workspace') {
+            when {
+                expression { return params.CLEAN_WORKSPACE == true }
+            }
             steps {
                 cleanWs()
             }
@@ -71,4 +78,6 @@ pipeline {
             sh 'docker-compose -f docker-compose.yml down -v'
         }
     }
+}
+
 }
