@@ -12,6 +12,7 @@ pipeline {
             steps {
                 cleanWs() // <--- PUT cleanWs() HERE
             }
+     }
     stage('clone repository') {
       steps {
         echo "cloning project"
