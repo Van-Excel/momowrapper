@@ -7,15 +7,15 @@ pipeline {
     }
 
     stages {
-        // Corrected indentation for this stage
         stage('Clean Workspace') {
             steps {
                 cleanWs()
             }
         }
-        stage('clone repository') {
+
+        stage('Clone Repository') {
             steps {
-                echo "cloning project"
+                echo "Cloning project"
                 checkout scm
             }
         }
@@ -26,25 +26,25 @@ pipeline {
                     echo "Provisioning .env file and building Docker containers..."
 
                     withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE_PATH')]) {
-                        sh(script: """
+                        // Avoid Groovy interpolation warning by using triple single-quotes
+                        sh(script: '''
                             chmod 666 /var/run/docker.sock
                             docker-compose --env-file "$DOTENV_FILE_PATH" -f docker-compose.yml up -d --build
                             sleep 10
-                        """,
-                        env: [DOTENV_FILE_PATH: DOTENV_FILE_PATH])
+                        ''')
                     }
                 }
             }
         }
 
-        stage('test') {
+        stage('Test') {
             steps {
-                echo "This is the test phase"
+                echo "Running test phase"
                 sh 'docker-compose exec -T web pytest tests/'
             }
         }
 
-        stage('deploy') {
+        stage('Deploy') {
             steps {
                 echo "This is the deploy phase"
             }
@@ -53,10 +53,8 @@ pipeline {
 
     post {
         always {
-            echo "cleaning up docker containers and volumes"
+            echo "Cleaning up docker containers and volumes"
             sh 'docker-compose -f docker-compose.yml down -v'
         }
     }
-}
-  }
 }
