@@ -13,46 +13,14 @@ pipeline{
       
     }
 
-    stage('Setup Environment Variables') {
-  steps {
-    script {
-      echo "Parsing and injecting .env variables..."
-
-      // Use your Jenkins file credential
-      withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
-        
-        echo "Copying .env file into workspace..."
-        sh 'cp $DOTENV_FILE .env'
-
-        def dotenvContent = readFile(file: DOTENV_FILE)
-        def envVars = [:]
-
-        dotenvContent.split('\n').each { line ->
-          line = line.trim()
-          if (line && !line.startsWith('#')) {
-            def parts = line.split('=', 2)
-            if (parts.size() == 2) {
-              envVars[parts[0].trim()] = parts[1].trim()
-            } else {
-              echo "Warning: Skipping malformed .env line: '${line}'"
-            }
-          }
+    stage('Build and Start Containers') {
+      steps {
+        withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
+          sh '''
+            docker-compose --env-file $DOTENV_FILE -f docker-compose.yml up -d --build
+            sleep 10
+          '''
         }
-
-        envVars.each { key, value ->
-          env."${key}" = value
-          echo "Injected: ${key}=*** (value hidden for security)"
-        }
-      }
-    }
-  }
-}
-        
-    stage ('build'){
-      steps{
-        echo "This is the build phase"
-        sh 'docker-compose -f docker-compose.yml up -d --build'
-        sh 'sleep 10'
       }
     }
     stage('test'){
