@@ -28,18 +28,20 @@ pipeline {
         }
 
         stage('Build & Start Containers') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE_PATH')]) {
-                        sh '''
-                          echo "Using env file: $DOTENV_FILE_PATH"
-                          docker-compose --env-file "$DOTENV_FILE_PATH" -f docker-compose.yml up -d --build
-                          docker-compose ps
-                        '''
-                    }
-                }
+    steps {
+        script {
+            withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE_PATH')]) {
+                // Write the file to .env
+                sh '''
+                  echo "Copying env file..."
+                  cp "$DOTENV_FILE_PATH" .env
+                  docker-compose --env-file .env -f docker-compose.yml up -d --build
+                  docker-compose ps
+                '''
             }
         }
+    }
+}
 
         stage('Test') {
             steps {
