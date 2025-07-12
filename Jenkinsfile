@@ -13,14 +13,18 @@ pipeline{
       
     }
 
-    stage('Build and Start Containers') {
+    stage('Inject .env') {
       steps {
         withCredentials([file(credentialsId: 'myfirstpipelineenv', variable: 'DOTENV_FILE')]) {
-          sh '''
-            docker-compose --env-file $DOTENV_FILE -f docker-compose.yml up -d --build
-            sleep 10
-          '''
+          sh 'cp $DOTENV_FILE .env'
         }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'docker-compose up -d --build'
+        sh 'sleep 10'
       }
     }
     stage('test'){
