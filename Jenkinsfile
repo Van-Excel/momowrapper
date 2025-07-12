@@ -1,5 +1,9 @@
 pipeline {
   agent any
+  options {
+        // This option ensures that the workspace is deleted before each build starts.
+        cleanWs()
+    }
 
   environment {
     COMPOSE_PROJECT_NAME = "wrapper_pipeline"
